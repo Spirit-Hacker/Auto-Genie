@@ -16,9 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { SUPPORTED_ASSETS, type TradingMetaData } from "common/types";
+import { getNodes, type NodesResponse } from "@/lib/http";
 
 const SUPPORTED_ACTIONS = [
   {
@@ -41,10 +42,31 @@ const SUPPORTED_ACTIONS = [
 export const ActionSheet = ({
   onSelect,
 }: {
-  onSelect: (kind: NodeKind, metaData: NodeMetaData) => void;
+  onSelect: (kind: NodeKind, metadata: NodeMetaData, apiKey: string, nodeId: string) => void;
 }) => {
-  const [metaData, setMetaData] = useState<TradingMetaData | {}>({});
-  const [selectedAction, setSelectedAction] = useState(SUPPORTED_ACTIONS[0].id);
+  const [metadata, setMetadata] = useState<TradingMetaData | {}>({});
+  const [selectedAction, setSelectedAction] = useState<NodeKind>("lighter");
+  const [actionNodes, setActionNodes] = useState<NodesResponse | null>(null);
+  const [apiKey, setApiKey] = useState("");
+  const [nodeId, setNodeId] = useState("");
+
+  const allNodes = async () => {
+    const res = await getNodes();
+    console.log("Nodes Res: ", res);
+    const action = res.filter((node) => node.type === "ACTION");
+    setActionNodes({ nodes: action });
+  };
+  useEffect(() => {
+    allNodes();
+  }, []);
+
+  useEffect(() => {
+    console.log("ActionNodes: ", actionNodes);
+    const node = actionNodes?.nodes.find((n) => n.id === selectedAction)!;
+    console.log("Selected Action Node: ", node);
+    setNodeId(node?._id);
+  }, [actionNodes, selectedAction]);
+
   return (
     <div>
       <Sheet open={true}>
@@ -55,20 +77,21 @@ export const ActionSheet = ({
               Select the type of action that you need.
               <Select
                 value={selectedAction}
-                onValueChange={(value) => setSelectedAction(value)}
+                onValueChange={(value: NodeKind) => setSelectedAction(value)}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select an Action" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {SUPPORTED_ACTIONS.map(({ id, title }) => (
-                      <>
-                        <SelectItem key={id} value={id}>
-                          {title}
-                        </SelectItem>
-                      </>
-                    ))}
+                    {actionNodes &&
+                      actionNodes.nodes.map(({ id, title }) => (
+                        <>
+                          <SelectItem key={id} value={id}>
+                            {title}
+                          </SelectItem>
+                        </>
+                      ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -78,10 +101,10 @@ export const ActionSheet = ({
                 <div className="pt-2">
                   <div>Type</div>
                   <Select
-                    value={metaData.type}
+                    value={metadata.type}
                     onValueChange={(value) =>
-                      setMetaData((metaData) => ({
-                        ...metaData,
+                      setMetadata((metadata) => ({
+                        ...metadata,
                         type: value,
                       }))
                     }
@@ -99,9 +122,9 @@ export const ActionSheet = ({
 
                   <div>Symbol</div>
                   <Select
-                    value={metaData.symbol}
+                    value={metadata.symbol}
                     onValueChange={(value) =>
-                      setMetaData((metaData) => ({
+                      setMetadata((metaData) => ({
                         ...metaData,
                         symbol: value,
                       }))
@@ -124,14 +147,20 @@ export const ActionSheet = ({
                   </Select>
                   <div>QTY</div>
                   <Input
-                    value={metaData.qty}
+                    value={metadata.qty}
                     type="text"
                     onChange={(e) =>
-                      setMetaData((m) => ({
+                      setMetadata((m) => ({
                         ...m,
                         qty: Number(e.target.value),
                       }))
                     }
+                  />
+                  <div>API Key</div>
+                  <Input
+                    value={apiKey}
+                    type="text"
+                    onChange={(e) => setApiKey(e.target.value)}
                   />
                 </div>
               )}
@@ -140,7 +169,7 @@ export const ActionSheet = ({
           <SheetFooter>
             <Button
               onClick={() => {
-                onSelect(selectedAction, metaData);
+                onSelect(selectedAction, metadata, apiKey, nodeId);
               }}
               type="submit"
             >

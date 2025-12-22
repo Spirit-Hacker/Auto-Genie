@@ -5,13 +5,13 @@ export const PriceTrigger = ({
   data,
 }: {
   data: {
-    metaData: PriceTriggerMetadata;
+    metadata: PriceTriggerMetadata;
   };
   isConnectable: boolean;
 }) => {
   return (
-    <div className="p-4 border">
-      {data.metaData.asset} {data.metaData.price}
+    <div className="p-4 border shadow-sm rounded-md">
+      <span className="font-semibold">{data.metadata.asset}</span> {data.metadata.price}
       <Handle position={Position.Right} type="source"></Handle>
     </div>
   );

@@ -12,10 +12,15 @@ import { TriggerSheet } from "./TriggerSheet";
 import { ActionSheet } from "./ActionSheet";
 import { Hyperliquid } from "@/nodes/actions/Hyperliquid";
 import { Backpack } from "@/nodes/actions/BackPack";
-import type { PriceTriggerMetadata, TimerNodeMetadata, TradingMetaData } from "common/types";
+import type {
+  PriceTriggerMetadata,
+  TimerNodeMetadata,
+  TradingMetaData,
+} from "common/types";
 import { PriceTrigger } from "@/nodes/triggers/PriceTrigger";
 import { Timer } from "@/nodes/triggers/Timer";
 import { Lighter } from "@/nodes/actions/Lighter";
+import { createWorkflow } from "@/lib/http";
 
 export type NodeMetaData =
   | TradingMetaData
@@ -40,13 +45,17 @@ export type NodeKind =
 interface NodeType {
   type: NodeKind;
   data: {
-    kind: "action" | "trigger";
-    metaData: NodeMetaData;
+    kind: "ACTION" | "TRIGGER";
+    metadata: NodeMetaData;
   };
+  nodeId: string;
   id: string;
   position: {
     x: number;
     y: number;
+  };
+  credentials?: {
+    API_KEY: string;
   };
 }
 
@@ -67,7 +76,13 @@ export default function CreateWorkflow() {
     startingNodeId: string;
   } | null>(null);
 
-  const [rfInstance, setRfInstance] = useState<ReactFlowInstance<NodeType, Edge> | null>(null);
+  console.log("Nodes: ", nodes);
+  console.log("Edges: ", edges);
+
+  const [rfInstance, setRfInstance] = useState<ReactFlowInstance<
+    NodeType,
+    Edge
+  > | null>(null);
 
   const onNodesChange = useCallback(
     (changes: any) =>
@@ -92,7 +107,8 @@ export default function CreateWorkflow() {
       if (
         !connectionState.isValid &&
         connectionState.fromNode &&
-        connectionState.to && rfInstance
+        connectionState.to &&
+        rfInstance
       ) {
         // if connection arrow drops on empty space create a new node there
         const flowPosition = rfInstance.screenToFlowPosition({
@@ -111,19 +127,26 @@ export default function CreateWorkflow() {
     [rfInstance]
   );
 
+  const handlePUblish = async () => {
+    console.log("Hello Workflow");
+    const res = await createWorkflow(nodes, edges);
+    console.log("Create Workflow Response: ", res);
+  };
+
   return (
-    <div style={{ width: "100vw", height: "100vh" }}>
+    <div style={{ width: "100vw", height: "100vh" }} className="p-32">
       {!nodes.length && (
         <TriggerSheet
-          onSelect={(kind, metaData) =>
+          onSelect={(kind, metadata, nodeId) =>
             setNodes([
               ...nodes,
               {
                 id: Math.random().toString(),
                 type: kind,
+                nodeId: nodeId,
                 data: {
-                  kind: "trigger",
-                  metaData: metaData,
+                  kind: "TRIGGER",
+                  metadata: metadata,
                 },
                 position: {
                   x: 0,
@@ -136,29 +159,33 @@ export default function CreateWorkflow() {
       )}
       {selectAction && (
         <ActionSheet
-          onSelect={(kind, metaData) => {
-            const nodeId = Math.random().toString();
+          onSelect={(kind, metadata, apiKey, nodeId) => {
+            const newNodeId = Math.random().toString();
             setNodes([
               ...nodes,
               {
-                id: nodeId,
+                id: newNodeId,
                 type: kind,
+                nodeId: nodeId,
                 data: {
-                  kind: "action",
-                  metaData: metaData,
+                  kind: "ACTION",
+                  metadata: metadata,
                 },
                 position: {
                   x: selectAction.position.x,
                   y: selectAction.position.y,
+                },
+                credentials: {
+                  API_KEY: apiKey,
                 },
               },
             ]);
             setEdges([
               ...edges,
               {
-                id: `${selectAction.startingNodeId}-${nodeId}`,
+                id: `${selectAction.startingNodeId}-${newNodeId}`,
                 source: selectAction.startingNodeId,
-                target: nodeId,
+                target: newNodeId,
               },
             ]);
             setSelectAction(null);
@@ -176,6 +203,13 @@ export default function CreateWorkflow() {
         onConnectEnd={onConnectionEnd}
         fitView
       />
+
+      <div
+        className="bg-black text-white w-[100px] text-center cursor-pointer"
+        onClick={handlePUblish}
+      >
+        Publish
+      </div>
     </div>
   );
 }

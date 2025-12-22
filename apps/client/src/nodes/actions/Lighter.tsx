@@ -5,7 +5,7 @@ export const Lighter = ({
   data,
 }: {
   data: {
-    metaData: TradingMetaData;
+    metadata: TradingMetaData;
   };
 }) => {
   return (
@@ -13,15 +13,15 @@ export const Lighter = ({
       <div className="font-semibold mb-3">Lighter Trade</div>
       <div className="text-gray-500">
         Type:{" "}
-        <span className="font-semibold text-black">{data.metaData.type}</span>
+        <span className="font-semibold text-black">{data.metadata.type}</span>
       </div>
       <div className="text-gray-500">
         QTY:{" "}
-        <span className="font-semibold text-black">{data.metaData.qty}</span>
+        <span className="font-semibold text-black">{data.metadata.qty}</span>
       </div>
       <div className="text-gray-500">
         Asset:{" "}
-        <span className="font-semibold text-black">{data.metaData.symbol}</span>
+        <span className="font-semibold text-black">{data.metadata.symbol}</span>
       </div>
       <Handle position={Position.Right} type="source"></Handle>
       <Handle position={Position.Left} type="target"></Handle>
