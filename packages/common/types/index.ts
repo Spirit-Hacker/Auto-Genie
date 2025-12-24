@@ -46,6 +46,7 @@ export const UpdateWorkflowSchema = z.object({
       }),
       credentials: z.any(),
       id: z.string(),
+      type: z.string(),
       position: z.object({
         x: z.number(),
         y: z.number(),
