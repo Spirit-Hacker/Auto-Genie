@@ -21,28 +21,15 @@ import { Input } from "./ui/input";
 import { SUPPORTED_ASSETS, type TradingMetaData } from "common/types";
 import { getNodes, type NodesResponse } from "@/lib/http";
 
-const SUPPORTED_ACTIONS = [
-  {
-    id: "hyperliquid",
-    title: "Hyperliquid",
-    description: "Place a trade on hyperliquid",
-  },
-  {
-    id: "backpack",
-    title: "Backpack",
-    description: "Place a trade on backpack",
-  },
-  {
-    id: "lighter",
-    title: "Lighter",
-    description: "Place a trade on lighter",
-  },
-];
-
 export const ActionSheet = ({
   onSelect,
 }: {
-  onSelect: (kind: NodeKind, metadata: NodeMetaData, apiKey: string, nodeId: string) => void;
+  onSelect: (
+    kind: NodeKind,
+    metadata: NodeMetaData,
+    apiKey: string,
+    nodeId: string
+  ) => void;
 }) => {
   const [metadata, setMetadata] = useState<TradingMetaData | {}>({});
   const [selectedAction, setSelectedAction] = useState<NodeKind>("lighter");

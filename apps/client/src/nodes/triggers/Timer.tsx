@@ -13,7 +13,7 @@ export const Timer = ({
     <div className="p-4 border shadow-sm rounded-md">
       <div className="font-semibold">Timer</div>
       <div className="text-gray-500">
-        Every <span className="text-black font-semibold">{data.metadata.time}</span> Seconds
+        Every <span className="text-white font-semibold">{data.metadata.time}</span> Seconds
       </div>
       <Handle position={Position.Right} type="source"></Handle>
     </div>

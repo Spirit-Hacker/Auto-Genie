@@ -1,3 +1,5 @@
+import type { NodeType } from "@/components/CreateWorkflow";
+import type { Edge } from "@xyflow/react";
 import axios, { type AxiosInstance, AxiosError } from "axios";
 
 // Types for API responses
@@ -31,11 +33,11 @@ interface User {
   password: string;
 }
 
-interface Workflow {
+export interface Workflow {
   _id: string;
   userId: string;
-  nodes: object[];
-  edges: object[];
+  nodes: NodeType[];
+  edges: Edge[];
   createdAt?: string;
   updatedAt?: string;
 }

@@ -22,6 +22,7 @@
     "clsx": "^2.1.1",
     "common": "*",
     "lucide-react": "^0.560.0",
+    "motion": "^12.23.26",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.10.1",
